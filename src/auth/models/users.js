@@ -1,6 +1,7 @@
 "use strict";
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const SECRET = process.env.SECRET || 'secretstring';
 const userSchema = (sequelize, DataTypes) => {
   // require('dotenv').config();
   const model = sequelize.define("User", {
@@ -10,7 +11,10 @@ const userSchema = (sequelize, DataTypes) => {
       type: DataTypes.VIRTUAL,
       get() {
         return jwt.sign({ username: this.username },process.env.SECRET);
-      },
+      },set(tokenObj) {
+        let token = jwt.sign(tokenObj,SECRET);
+        return token;
+      }
     },
   });
 
@@ -34,10 +38,12 @@ const userSchema = (sequelize, DataTypes) => {
 
   // Bearer AUTH: Validating a token
   model.authenticateToken = async function (token) {
+    
     try {
-      const parsedToken = jwt.verify(token, process.env.SECRET);
+      const parsedToken = jwt.verify(token, SECRET);
+     
       const user = await this.findOne({ where:{ username: parsedToken.username }});
-      if (user.username) {
+      if (user) {
         return user;
       }else{
       throw new Error("User Not Found");}
