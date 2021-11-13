@@ -33,8 +33,8 @@ authRouter.post('/signin', basicAuth, (req, res, next) => {
 });
 
 authRouter.get('/users', bearerAuth, async (req, res, next) => {
-  const users = await users.findAll({});
-  const list = users.map(user => user.username);
+  const userRecords = await users.findAll({});
+  const list = userRecords.map(user => user.username);
   res.status(200).json(list);
 });
 
